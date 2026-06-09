@@ -187,7 +187,7 @@ body.show-cursor .controls{opacity:1}
 <audio id="music" preload="auto" src="assets/muzik-upbeat-korporat.wav"></audio>
 <div class="controls">
   <button id="replayBtn">↻ Main Semula</button>
-  <button id="fullscreenBtn">⛶ Skrin Penuh</button>
+  
 </div>
 <div class="progress" id="progress"></div>
 
@@ -241,6 +241,16 @@ function reset(){
 }
 async function startShow(){
   if(running)return;
+
+  // Masuk fullscreen secara automatik apabila pengguna klik untuk memulakan.
+  if(!document.fullscreenElement){
+    try{
+      await document.documentElement.requestFullscreen();
+    }catch(e){
+      console.warn('Fullscreen disekat oleh pelayar:', e);
+    }
+  }
+
   running=true;canExit=false;clearAll();
   music.currentTime=0;try{await music.play()}catch(e){}
   progress.classList.remove('run');void progress.offsetWidth;progress.classList.add('run');
@@ -271,6 +281,21 @@ document.addEventListener('keydown',e=>{
 });
 let ct;document.addEventListener('mousemove',()=>{document.body.classList.add('show-cursor');clearTimeout(ct);ct=setTimeout(()=>document.body.classList.remove('show-cursor'),1500)});
 prepareSlides();
+
+/*
+  Pelayar biasa lazimnya menyekat fullscreen tanpa interaksi pengguna.
+  Kod ini tetap mencuba ketika halaman dibuka; jika disekat,
+  klik pertama pada paparan akan mengaktifkan fullscreen dan memulakan gimik.
+*/
+window.addEventListener('load', async ()=>{
+  if(!document.fullscreenElement){
+    try{
+      await document.documentElement.requestFullscreen();
+    }catch(e){
+      // Akan dicuba semula melalui klik pertama pada scene pembukaan.
+    }
+  }
+});
 </script>
 </body>
 </html>
