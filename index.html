@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Gimik Perasmian Go Green | Hospital Baling</title>
+<style>
+:root{
+  --gold:#e6d28a;--gold2:#fff1bd;--emerald:#0c3b2a;--emerald2:#1b6b4b;
+  --cream:#fffaf0;--lime:#b7df76;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;font-family:Inter,Segoe UI,Arial,sans-serif;cursor:none}
+body.show-cursor{cursor:default}
+.scene{position:fixed;inset:0;opacity:0;visibility:hidden;transition:opacity .9s ease,visibility .9s;overflow:hidden}
+.scene.active{opacity:1;visibility:visible}
+.bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 50% 35%,rgba(30,112,77,.34),transparent 27%),
+    radial-gradient(circle at 18% 82%,rgba(142,184,83,.13),transparent 24%),
+    linear-gradient(145deg,#010302 0%,#07180f 48%,#010302 100%);
+}
+.bg::after{content:"";position:absolute;inset:0;background-image:
+ linear-gradient(rgba(230,210,138,.035) 1px,transparent 1px),
+ linear-gradient(90deg,rgba(230,210,138,.035) 1px,transparent 1px);
+ background-size:90px 90px;mask-image:radial-gradient(circle at center,#000 20%,transparent 80%)}
+.noise{position:absolute;inset:0;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E")}
+.gold-ring{position:absolute;left:50%;top:50%;width:min(34vw,420px);aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);border:1px solid rgba(230,210,138,.24);box-shadow:0 0 90px rgba(27,107,75,.26)}
+.gold-ring::before,.gold-ring::after{content:"";position:absolute;border-radius:50%;border:1px solid rgba(230,210,138,.12)}
+.gold-ring::before{inset:8%}.gold-ring::after{inset:18%;border-style:dashed;animation:spin 18s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.jata-logo{position:absolute;left:50%;top:50%;width:min(24vw,320px);max-height:40vh;transform:translate(-50%,-50%) scale(.9);object-fit:contain;filter:drop-shadow(0 10px 28px rgba(0,0,0,.38)) drop-shadow(0 0 24px rgba(230,210,138,.22));opacity:0;animation:jataIn 1.6s .25s cubic-bezier(.2,.8,.16,1) forwards}@keyframes jataIn{60%{opacity:1;transform:translate(-50%,-50%) scale(1.03)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+.draw{stroke-dasharray:800;stroke-dashoffset:800;animation:draw 2.8s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.center{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:5vh 6vw}
+.eyebrow{color:#c7b979;letter-spacing:.38em;text-transform:uppercase;font-size:clamp(11px,1vw,17px)}
+.intro-copy{position:absolute;left:50%;bottom:8%;transform:translateX(-50%);width:92%;text-align:center}
+.intro-title{margin-top:.8rem;color:var(--cream);font-size:clamp(24px,4.6vw,46px);font-weight:750;letter-spacing:.03em}
+.intro-title b{color:var(--gold)}
+.click-note{margin-top:1.3rem;color:#e7dfc2;letter-spacing:.12em;font-size:clamp(12px,1vw,17px);animation:blink 1.7s ease-in-out infinite}
+@keyframes blink{50%{opacity:.3}}
+.countdown-overlay{position:fixed;inset:0;z-index:80;display:grid;place-items:center;background:radial-gradient(circle at center,rgba(24,105,72,.42),rgba(0,8,5,.94) 62%),rgba(0,0,0,.88);opacity:0;visibility:hidden;transition:opacity .28s ease,visibility .28s;pointer-events:none}
+.countdown-overlay.show{opacity:1;visibility:visible}
+.countdown-wrap{text-align:center;position:relative}
+.countdown-label{color:var(--gold2);letter-spacing:.48em;text-transform:uppercase;font-size:clamp(12px,1.2vw,20px);margin-bottom:1.2vh;opacity:.9}
+.countdown-number{min-width:1.4em;color:#fff8dc;font-size:clamp(120px,20vw,330px);font-weight:900;line-height:.82;text-shadow:0 0 18px rgba(255,241,189,.55),0 0 55px rgba(27,107,75,.72),0 20px 50px rgba(0,0,0,.6);transform:scale(.55);opacity:0}
+.countdown-number.pop{animation:countPop .9s cubic-bezier(.15,.82,.18,1) forwards}
+.countdown-ring{position:absolute;left:50%;top:57%;width:min(34vw,440px);aspect-ratio:1;border-radius:50%;border:2px solid rgba(230,210,138,.22);transform:translate(-50%,-50%) scale(.68);opacity:0}
+.countdown-ring.spin{animation:ringPulse .9s ease forwards}
+@keyframes countPop{0%{opacity:0;transform:scale(.45);filter:blur(12px)}45%{opacity:1;transform:scale(1.12);filter:blur(0)}100%{opacity:0;transform:scale(1.45);filter:blur(2px)}}
+@keyframes ringPulse{0%{opacity:0;transform:translate(-50%,-50%) scale(.55)}35%{opacity:.8}100%{opacity:0;transform:translate(-50%,-50%) scale(1.28)}}
+
+
+.card{width:min(92vw,1500px);padding:4vh 4vw;border:1px solid rgba(230,210,138,.18);border-radius:34px;background:linear-gradient(180deg,rgba(8,30,21,.70),rgba(3,13,9,.78));box-shadow:0 30px 90px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.04);backdrop-filter:blur(14px)}
+.event-label{color:#c7b979;letter-spacing:.42em;text-transform:uppercase;font-size:clamp(11px,1vw,16px);opacity:0}
+.event-title{margin-top:1.1vh;font-size:clamp(42px,6vw,50px);font-weight:850;line-height:.95;background:linear-gradient(180deg,#fff9db,#e6d28a 55%,#b99a3a);-webkit-background-clip:text;background-clip:text;color:transparent;opacity:0;transform:translateY(35px)}
+.event-sub{margin-top:1.4vh;color:#f7f2dc;font-size:clamp(22px,2.6vw,100px);font-weight:650;opacity:0;transform:translateY(20px)}
+.event-hospital{margin-top:1.2vh;color:var(--gold2);font-size:clamp(24px,3vw,62px);font-weight:800;letter-spacing:.05em;opacity:0}
+.event-meta{display:flex;justify-content:center;gap:2.5vw;flex-wrap:wrap;margin-top:2.2vh;color:#d9cfaa;font-size:clamp(14px,1.35vw,24px);opacity:0}
+.event-meta b{color:#fff5cc}
+.reveal .event-label{animation:fadeUp .6s .1s forwards}
+.reveal .event-title{animation:heroIn .9s .28s forwards}
+.reveal .event-sub{animation:fadeUp .7s .75s forwards}
+.reveal .event-hospital{animation:fadeUp .7s 1s forwards}
+.reveal .event-meta{animation:fadeUp .7s 1.25s forwards}
+@keyframes heroIn{to{opacity:1;transform:none}}
+@keyframes fadeUp{to{opacity:1;transform:none}}
+
+.tentative-card{width:min(90vw,1350px);display:grid;grid-template-columns:1fr 1fr;gap:2vw}
+.day{padding:3vh 2.2vw;border:1px solid rgba(230,210,138,.16);border-radius:28px;background:rgba(4,18,12,.66);box-shadow:0 25px 80px rgba(0,0,0,.32);opacity:0;transform:translateY(28px)}
+.day h3{margin:0;color:var(--gold);font-size:clamp(24px,2.4vw,46px);letter-spacing:.06em}
+.day .date{margin-top:.35vh;color:#c8bea0;font-size:clamp(13px,1.1vw,18px);letter-spacing:.18em;text-transform:uppercase}
+.items{margin-top:1.7vh;display:grid;gap:1vh}
+.item{padding:1.05vh 1.1vw;border-radius:16px;background:linear-gradient(90deg,rgba(27,107,75,.38),rgba(27,107,75,.06));color:#f8f5e9;font-size:clamp(14px,1.20vw,21px);line-height:1.25;text-align:left;border-left:3px solid var(--gold)}
+.tentative-title{grid-column:1/-1;color:#fff8dc;font-size:clamp(30px,3.4vw,64px);font-weight:800;letter-spacing:.04em;margin-bottom:.6vh;opacity:0}
+.reveal .tentative-title{animation:fadeUp .6s forwards}
+.reveal .day:nth-child(2){animation:fadeUp .7s .25s forwards}
+.reveal .day:nth-child(3){animation:fadeUp .7s .5s forwards}
+
+#scene4{background:#000}
+.slide{position:absolute;inset:0;opacity:0;transform:scale(1.08);transition:opacity .8s ease,transform 2.4s ease;background-position:center;background-size:cover}
+.slide.active{opacity:1;transform:scale(1)}
+.slide::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.10),rgba(0,0,0,.48))}
+.montage-frame{position:absolute;inset:3.5vh 3vw;border:1px solid rgba(230,210,138,.22);border-radius:30px;z-index:2;pointer-events:none;box-shadow:inset 0 0 70px rgba(0,0,0,.22)}
+.montage-caption{position:absolute;left:5vw;bottom:6vh;z-index:3;color:#fff8df;font-size:clamp(24px,3.2vw,62px);font-weight:750;text-shadow:0 6px 30px rgba(0,0,0,.65);opacity:0}
+.montage-caption.show{animation:fadeUp .7s forwards}
+.montage-kicker{display:block;color:var(--gold2);font-size:clamp(11px,1vw,17px);letter-spacing:.34em;text-transform:uppercase;margin-bottom:.7vh}
+
+.final-quote{width:min(90vw,1400px);text-align:center;opacity:0;transform:scale(.92);filter:blur(12px)}
+.final-quote.reveal{animation:quoteIn 1.3s cubic-bezier(.2,.8,.16,1) forwards}
+@keyframes quoteIn{to{opacity:1;transform:scale(1);filter:blur(0)}}
+.quote-mark{color:var(--gold);font-size:clamp(52px,7vw,130px);line-height:.5}
+.quote-text{margin-top:1.5vh;font-size:clamp(38px,5.4vw,104px);font-weight:800;line-height:1.05;background:linear-gradient(180deg,#fff9dd,#e6d28a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.quote-sub{margin-top:2vh;color:#d8cfad;letter-spacing:.32em;text-transform:uppercase;font-size:clamp(11px,1vw,17px)}
+
+.flash{position:fixed;inset:0;background:#fff7cf;opacity:0;pointer-events:none;z-index:40}
+.flash.go{animation:flash .65s ease-out}
+@keyframes flash{20%{opacity:.9}100%{opacity:0}}
+.sweep{position:absolute;inset:-25%;background:linear-gradient(105deg,transparent 42%,rgba(255,249,210,.66) 50%,transparent 58%);mix-blend-mode:screen;transform:translateX(-120%) skewX(-14deg);pointer-events:none}
+.sweep.go{animation:sweep 1.7s ease-in-out}
+@keyframes sweep{to{transform:translateX(120%) skewX(-14deg)}}
+.progress{position:fixed;left:0;bottom:0;height:4px;width:0;background:linear-gradient(90deg,#1d6848,#e6d28a);box-shadow:0 0 18px rgba(230,210,138,.5);z-index:60}
+.progress.run{animation:progress 48s linear forwards}
+@keyframes progress{to{width:100%}}
+.controls{position:fixed;right:20px;top:18px;z-index:60;display:flex;gap:10px;opacity:0;transition:.2s}
+body.show-cursor .controls{opacity:1}
+.controls button{border:1px solid rgba(230,210,138,.28);background:rgba(4,15,10,.72);color:#fff5d3;border-radius:999px;padding:10px 15px;cursor:pointer}
+@media(max-width:900px){.tentative-card{grid-template-columns:1fr}.tentative-title{grid-column:auto}}
+</style>
+</head>
+<body>
+<section class="scene active" id="scene1">
+  <div class="bg"></div><div class="noise"></div>
+  <div class="gold-ring"></div>
+  <img class="jata-logo" src="assets/jata-offline.png" alt="Jata Negara Malaysia">
+  <div class="intro-copy">
+    <div class="eyebrow">Kelestarian • Kesedaran • Transformasi</div>
+    <div class="intro-title">DI SINI BERMULANYA <b>MASA DEPAN LESTARI</b></div>
+
+  </div>
+</section>
+
+<section class="scene" id="scene2">
+  <div class="bg"></div><div class="noise"></div>
+  <div class="center">
+    <div class="card" id="eventCard">
+     
+      <div class="event-sub">Majlis Perasmian</div>
+      <div class="event-title">PROGRAM KESEDARAN &amp; TRANSFORMASI KELESTARIAN 2026</div>
+      <div class="event-hospital">HOSPITAL BALING</div>
+      <div class="event-meta">
+        <span><b>TARIKH:</b> 10 - 11 JUN 2026</span>
+        <span><b>TEMPAT:</b> DEWAN SRI INDAH, HOSPITAL BALING • DEWAN TUN ABDUL RAZAK</span>
+      </div>
+    </div>
+  </div>
+  <div class="sweep" id="sweep2"></div>
+</section>
+
+<section class="scene" id="scene3">
+  <div class="bg"></div><div class="noise"></div>
+  <div class="center">
+    <div class="tentative-card" id="tentativeCard">
+      <div class="tentative-title">TENTATIF PROGRAM</div>
+      <div class="day">
+        <h3>• 10 JUN 2026 • </h3>
+        <div class="date">DEWAN SRI INDAH</div>
+        <div class="items">
+          <div class="item">Aktiviti Penanaman Pokok</div>
+          <div class="item">Taklimat Kesedaran Kelestarian — Energy Management Awareness</div>
+          <div class="item">Taklimat Kesedaran Kelestarian — Home Rooftop Solar Initiative</div>
+        </div>
+      </div>
+      <div class="day">
+        <h3>• 11 JUN 2026 • </h3>
+        <div class="date">DEWAN TUN ABDUL RAZAK</div>
+        <div class="items">
+          <div class="item">Go Green Fun Run</div>
+          <div class="item">Pertandingan Mewarna Kanak-kanak</div>
+          <div class="item">Pertandingan Menghias Pulut Kuning oleh Pesakit Strok</div>
+          <div class="item">Booth Pameran</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="scene" id="scene4">
+  <div class="slide" data-src="assets/photos/photo1.jpg"></div>
+  <div class="slide" data-src="assets/photos/photo2.jpg"></div>
+  <div class="slide" data-src="assets/photos/photo3.jpg"></div>
+  <div class="slide" data-src="assets/photos/photo4.jpg"></div>
+  <div class="slide" data-src="assets/photos/photo5.jpg"></div>
+  <div class="slide" data-src="assets/photos/photo6.jpg"></div>
+  <div class="slide" data-src="assets/photos/photo7.jpg"></div>
+  <div class="slide" data-src="assets/photos/photo8.jpg"></div>
+  <div class="slide" data-src="assets/photos/photo9.jpeg"></div>
+  <div class="slide" data-src="assets/photos/photo10.jpeg"></div>
+  <div class="slide" data-src="assets/photos/photo11.jpeg"></div>
+  <div class="slide" data-src="assets/photos/photo12.jpeg"></div>
+  <div class="slide" data-src="assets/photos/photo13.jpeg"></div>
+  <div class="slide" data-src="assets/photos/photo14.jpeg"></div>
+  <div class="slide" data-src="assets/photos/photo15.jpeg"></div>
+  <div class="montage-frame"></div>
+  <div class="montage-caption" id="montageCaption">
+    <span class="montage-kicker">Di Sebalik Lensa: Saat Idea Menjadi Realiti</span>
+    BERSAMA MEMBINA MASA DEPAN LESTARI
+  </div>
+</section>
+
+<section class="scene" id="scene5">
+  <div class="bg"></div><div class="noise"></div>
+  <div class="center">
+    <div class="final-quote" id="finalQuote">
+      <div class="quote-mark">“</div>
+      <div class="quote-text">Kelestarian Hijau,<br>Kesihatan Bersama.</div>
+      <div class="quote-sub">Hospital Baling</div>
+    </div>
+  </div>
+  <div class="sweep" id="sweep5"></div>
+</section>
+
+<div class="countdown-overlay" id="countdownOverlay">
+  <div class="countdown-wrap">
+    <div class="countdown-label">Bersedia Untuk Perasmian</div>
+    <div class="countdown-ring" id="countdownRing"></div>
+    <div class="countdown-number" id="countdownNumber">3</div>
+  </div>
+</div>
+
+<div class="flash" id="flash"></div>
+<audio id="countdownSound" preload="auto" src="assets/count.wav"></audio>
+<audio id="music" preload="auto" src="assets/muzik-upbeat-korporat.wav"></audio>
+<div class="controls">
+  <button id="replayBtn">↻ Main Semula</button>
+  <button id="fullscreenBtn">⛶ Skrin Penuh</button>
+</div>
+<div class="progress" id="progress"></div>
+
+<script>
+const scene1=document.getElementById('scene1');
+const scene2=document.getElementById('scene2');
+const scene3=document.getElementById('scene3');
+const scene4=document.getElementById('scene4');
+const scene5=document.getElementById('scene5');
+const scenes=[scene1,scene2,scene3,scene4,scene5];
+const countdownSound=document.getElementById('countdownSound');
+const music=document.getElementById('music');
+const flash=document.getElementById('flash');
+const progress=document.getElementById('progress');
+const countdownOverlay=document.getElementById('countdownOverlay');
+const countdownNumber=document.getElementById('countdownNumber');
+const countdownRing=document.getElementById('countdownRing');
+let running=false,canExit=false,timers=[],slideTimer=null,slideIndex=0;
+
+function activate(el){scenes.forEach(s=>s.classList.remove('active'));el.classList.add('active')}
+function later(fn,ms){timers.push(setTimeout(fn,ms))}
+function clearAll(){timers.forEach(clearTimeout);timers=[];clearInterval(slideTimer)}
+function doFlash(){flash.classList.remove('go');void flash.offsetWidth;flash.classList.add('go')}
+function prepareSlides(){
+  document.querySelectorAll('.slide').forEach(slide=>{
+    const src=slide.dataset.src;
+    const img=new Image();
+    img.onload=()=>slide.style.backgroundImage=`url("${src}")`;
+    img.onerror=()=>slide.style.backgroundImage='linear-gradient(135deg,#0d3b2a,#1f6b4d 55%,#08140f)';
+    img.src=src;
+  });
+}
+function startMontage(){
+  const slides=[...document.querySelectorAll('.slide')];
+  slides.forEach(s=>s.classList.remove('active'));
+  slideIndex=0;slides[0].classList.add('active');
+  montageCaption.classList.add('show');
+  slideTimer=setInterval(()=>{
+    slides[slideIndex].classList.remove('active');
+    slideIndex=(slideIndex+1)%slides.length;
+    slides[slideIndex].classList.add('active');
+  },1200);
+}
+function animateCountdownValue(value){
+  countdownNumber.textContent=value;
+  countdownNumber.classList.remove('pop');
+  countdownRing.classList.remove('spin');
+  void countdownNumber.offsetWidth;
+  countdownNumber.classList.add('pop');
+  countdownRing.classList.add('spin');
+}
+function fadeInMainMusic(duration=2600){
+  music.pause();
+  music.currentTime=0;
+  music.volume=0;
+
+  music.play().then(()=>{
+    const step=50;
+    const increment=step/duration;
+    const fadeTimer=setInterval(()=>{
+      music.volume=Math.min(1,music.volume+increment);
+      if(music.volume>=1) clearInterval(fadeTimer);
+    },step);
+  }).catch(()=>{});
+}
+
+function startCountdown(){
+  countdownOverlay.classList.add('show');
+
+  countdownSound.pause();
+  countdownSound.currentTime=0;
+  countdownSound.volume=1;
+
+  animateCountdownValue('3');
+  later(()=>animateCountdownValue('2'),1000);
+  later(()=>animateCountdownValue('1'),2000);
+
+  const finishCountdown=()=>{
+    countdownOverlay.classList.remove('show');
+    doFlash();
+    activate(scene2);
+    eventCard.classList.add('reveal');
+    sweep2.classList.add('go');
+
+    // Muzik upbeat masuk perlahan selepas audio countdown tamat.
+    fadeInMainMusic(2600);
+  };
+
+  countdownSound.addEventListener('ended',finishCountdown,{once:true});
+  countdownSound.play().catch(()=>later(finishCountdown,4600));
+}
+
+function reset(){
+  running=false;canExit=false;clearAll();
+  countdownSound.pause();
+  countdownSound.currentTime=0;
+  music.pause();
+  music.currentTime=0;
+  music.volume=1;
+  progress.classList.remove('run');
+  countdownOverlay.classList.remove('show');
+  countdownNumber.classList.remove('pop');
+  countdownRing.classList.remove('spin');
+  eventCard.classList.remove('reveal');
+  tentativeCard.classList.remove('reveal');
+  finalQuote.classList.remove('reveal');
+  sweep2.classList.remove('go');sweep5.classList.remove('go');
+  montageCaption.classList.remove('show');
+  document.querySelectorAll('.slide').forEach(s=>s.classList.remove('active'));
+  activate(scene1);
+}
+async function startShow(){
+  if(running)return;
+  if(!document.fullscreenElement){
+    try{await document.documentElement.requestFullscreen()}catch(e){}
+  }
+  running=true;canExit=false;clearAll();
+  music.pause();
+  music.currentTime=0;
+  music.volume=1;
+  progress.classList.remove('run');void progress.offsetWidth;progress.classList.add('run');
+  startCountdown();
+  later(()=>{doFlash();activate(scene3);tentativeCard.classList.add('reveal')},12000);
+  later(()=>{doFlash();activate(scene4);startMontage()},21500);
+  later(()=>{clearInterval(slideTimer);doFlash();activate(scene5);finalQuote.classList.add('reveal');sweep5.classList.add('go')},40000);
+  later(()=>{
+    const fade=setInterval(()=>{
+      if(music.volume>0.05){music.volume=Math.max(0,music.volume-0.05)}
+      else{clearInterval(fade);music.pause();music.volume=1}
+    },100);
+  },44500);
+  later(()=>{running=false;canExit=true},48000);
+}
+
+async function exitShow(){
+  if(!canExit)return;
+  try{window.close()}catch(e){}
+  if(document.fullscreenElement){try{await document.exitFullscreen()}catch(e){}}
+  document.body.innerHTML='';
+  document.body.style.background='#000';
+}
+scene1.addEventListener('click',startShow);
+scene5.addEventListener('click',exitShow);
+document.getElementById('replayBtn').addEventListener('click',reset);
+document.getElementById('fullscreenBtn').addEventListener('click',()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen());
+document.addEventListener('keydown',e=>{
+  if((e.code==='Space'||e.code==='Enter')&&scene1.classList.contains('active')){e.preventDefault();startShow()}
+  if((e.code==='Space'||e.code==='Enter')&&scene5.classList.contains('active')&&canExit){e.preventDefault();exitShow()}
+  if(e.key.toLowerCase()==='r')reset();
+  if(e.key.toLowerCase()==='f')document.getElementById('fullscreenBtn').click();
+  if(e.key==='Escape'&&canExit)exitShow();
+});
+let ct;document.addEventListener('mousemove',()=>{document.body.classList.add('show-cursor');clearTimeout(ct);ct=setTimeout(()=>document.body.classList.remove('show-cursor'),1500)});
+prepareSlides();
+</script>
+</body>
+</html>
